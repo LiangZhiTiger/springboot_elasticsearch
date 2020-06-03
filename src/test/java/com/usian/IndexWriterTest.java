@@ -40,32 +40,36 @@ public class IndexWriterTest {
         //设置索引参数
         createIndexRequest.settings(Settings.builder().put("number_of_shards",2).put("number_of_replicas",0));
         //设置属性
-        createIndexRequest.mapping("course", "{\r\n" +
-                "  \"_source\": {\r\n" +
-                "    \"excludes\":[\"description\"]\r\n" +
-                "  }, \r\n" +
-                " 	\"properties\": {\r\n" +
-                "           \"name\": {\r\n" +
-                "              \"type\": \"text\",\r\n" +
-                "              \"analyzer\":\"ik_max_word\",\r\n" +
-                "              \"search_analyzer\":\"ik_smart\"\r\n" +
-                "           },\r\n" +
-                "           \"description\": {\r\n" +
-                "              \"type\": \"text\",\r\n" +
-                "              \"analyzer\":\"ik_max_word\",\r\n" +
-                "              \"search_analyzer\":\"ik_smart\"\r\n" +
-                "           },\r\n" +
-                "           \"studymodel\": {\r\n" +
-                "              \"type\": \"keyword\"\r\n" +
-                "           },\r\n" +
-                "           \"price\": {\r\n" +
-                "              \"type\": \"float\"\r\n" +
-                "           },\r\n" +
-                "           \"timestamp\": {\r\n" +
-                "          		\"type\":   \"date\",\r\n" +
-                "          		\"format\": \"yyyy-MM-dd HH:mm:ss||yyyy-MM-dd\"\r\n" +
-                "        	}\r\n" +
-                "  }\r\n" +
+        createIndexRequest.mapping("course", "{\n" +
+                "  \"_source\": {\n" +
+                "    \"excludes\":[\"description\"]\n" +
+                "  }, \n" +
+                " \t\"properties\": {\n" +
+                "      \"name\": {\n" +
+                "          \"type\": \"text\",\n" +
+                "          \"analyzer\":\"ik_max_word\",\n" +
+                "          \"search_analyzer\":\"ik_smart\"\n" +
+                "      },\n" +
+                "      \"description\": {\n" +
+                "          \"type\": \"text\",\n" +
+                "          \"analyzer\":\"ik_max_word\",\n" +
+                "          \"search_analyzer\":\"ik_smart\"\n" +
+                "       },\n" +
+                "       \"studymodel\": {\n" +
+                "          \"type\": \"keyword\"\n" +
+                "       },\n" +
+                "       \"price\": {\n" +
+                "          \"type\": \"float\"\n" +
+                "       },\n" +
+                "       \"pic\":{\n" +
+                "\t\t   \"type\":\"text\",\n" +
+                "\t\t   \"index\":false\n" +
+                "\t    },\n" +
+                "       \"timestamp\": {\n" +
+                "      \t\t\"type\":   \"date\",\n" +
+                "      \t\t\"format\": \"yyyy-MM-dd HH:mm:ss||yyyy-MM-dd\"\n" +
+                "    \t }\n" +
+                "  }\n" +
                 "}", XContentType.JSON);
         //创建索引操作客户端
         IndicesClient indicesClient = restHighLevelClient.indices();
@@ -95,7 +99,7 @@ public class IndexWriterTest {
     public void testAddDocument() throws IOException {
         IndexRequest indexRequest = new IndexRequest("java1906","course","1");
         indexRequest.source("{\n" +
-                " \"name\":\"spring cloud实战\",\n" +
+                " \"name\":\"spring cloud开发\",\n" +
                 " \"description\":\"本课程主要从四个章节进行讲解： 1.微服务架构入门 2.spring cloud 基础入门 3.实战Spring Boot 4.注册中心eureka。\",\n" +
                 " \"studymodel\":\"201001\",\n" +
                 " \"price\":5.6\n" +
@@ -108,8 +112,8 @@ public class IndexWriterTest {
     @Test
     public void testBulkAddDocument() throws IOException {
         BulkRequest bulkRequest = new BulkRequest();
-        bulkRequest.add(new IndexRequest("java1906","course","2").source("{\"name\":\"php实战\",\"description\":\"php谁都不服\",\"studymodel\":\"201001\",\"price\":\"5.6\"}",XContentType.JSON));
-        bulkRequest.add(new IndexRequest("java1906","course","3").source("{\"name\":\"net实战\",\"description\":\"net从入门到放弃\",\"studymodel\":\"201001\",\"price\":\"7.6\"}",XContentType.JSON));
+        bulkRequest.add(new IndexRequest("java1906","course","2").source("{\"name\":\"php开发\",\"description\":\"php谁都不服\",\"studymodel\":\"201001\",\"price\":\"5.6\"}",XContentType.JSON));
+        bulkRequest.add(new IndexRequest("java1906","course","3").source("{\"name\":\"net开发\",\"description\":\"net从入门到放弃\",\"studymodel\":\"201001\",\"price\":\"7.6\"}",XContentType.JSON));
         BulkResponse bulk = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
         System.out.println(bulk.hasFailures());
     }
