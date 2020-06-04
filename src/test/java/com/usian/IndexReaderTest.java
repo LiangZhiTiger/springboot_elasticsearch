@@ -6,6 +6,7 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -14,6 +15,8 @@ import org.elasticsearch.index.search.MatchQuery;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.SortOrder;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +25,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.swing.text.Highlighter;
 import java.io.IOException;
+import java.util.Map;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {ElasticsearchApp.class})
@@ -128,6 +133,22 @@ public class IndexReaderTest {
         displayDoc(searchResponse);
     }
 
+    //高亮搜索
+    @Test
+    public void testHighLightQuery() throws IOException {
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(QueryBuilders.matchQuery("name","开发"));
+
+        HighlightBuilder highlightBuilder = new HighlightBuilder();
+        highlightBuilder.preTags("[\"<font color=red>\"]");
+        highlightBuilder.postTags("[\"</font>\"]");
+        highlightBuilder.fields().add(new HighlightBuilder.Field("name"));
+
+        searchSourceBuilder.highlighter(highlightBuilder);
+        searchRequest.source(searchSourceBuilder);
+        SearchResponse searchResponse = restHighLevelClient.search(searchRequest);
+        displayDoc(searchResponse);
+    }
 
     public void displayDoc(SearchResponse searchResponse){
         SearchHits hits = searchResponse.getHits();
@@ -137,6 +158,13 @@ public class IndexReaderTest {
             SearchHit documentFields = hits1[i];
             System.out.println(documentFields.getId());
             System.out.println(documentFields.getSourceAsString());
+
+            Map<String, HighlightField> highlightFields = documentFields.getHighlightFields();
+            if (highlightFields!=null){
+                HighlightField highlightField = highlightFields.get("name");
+                Text[] fragments = highlightField.getFragments();
+                System.out.println("高亮字段："+fragments[0].toString());
+            }
         }
     }
 
